@@ -3,7 +3,7 @@
 
 *this fork is a updated version of the main repo from [eiadxp](https://github.com/eiadxp) with some minor changes and a nuget version*
 
-# MvvmCross.Platforms.Wpf.ItemsViewPresenter
+# Mvx.Wpf.ItemsPresenter
 A simple library for MvvmCross that will enable the using of ItemsControls to host your views.... This include the Tabbed GUI for example.
 
 # Terms:
