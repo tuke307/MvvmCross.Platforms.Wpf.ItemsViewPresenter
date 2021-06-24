@@ -1,3 +1,6 @@
+[![NuGet](https://img.shields.io/nuget/v/Mvx.Wpf.ItemsPresenter.svg)](https://www.nuget.org/packages/Mvx.Wpf.ItemsPresenter/)
+[![NuGet Pre Release](https://img.shields.io/nuget/vpre/Mvx.Wpf.ItemsPresenter.svg)](https://www.nuget.org/packages/Mvx.Wpf.ItemsPresenter/)
+
 # MvvmCross.Platforms.Wpf.ItemsViewPresenter
 A simple library for MvvmCross that will enable the using of ItemsControls to host your views.... This include the Tabbed GUI for example.
 
