@@ -1,36 +1,66 @@
-﻿using MvvmCross.Platforms.Wpf.ItemsPresenter.Commands;
-using MvvmCross.Platforms.Wpf.Presenters;
-using MvvmCross.Platforms.Wpf.Presenters.Attributes;
-using MvvmCross.Platforms.Wpf.Views;
-using MvvmCross.Presenters;
-using MvvmCross.Presenters.Attributes;
-using MvvmCross.ViewModels;
-using MvvmCross.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-
-namespace MvvmCross.Platforms.Wpf.ItemsPresenter
+﻿namespace MvvmCross.Platforms.Wpf.ItemsPresenter
 {
+    using MvvmCross.Commands;
+    using MvvmCross.Platforms.Wpf.ItemsPresenter.Commands;
+    using MvvmCross.Platforms.Wpf.Presenters;
+    using MvvmCross.Platforms.Wpf.Presenters.Attributes;
+    using MvvmCross.Platforms.Wpf.Views;
+    using MvvmCross.Presenters;
+    using MvvmCross.ViewModels;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Windows;
+    using System.Windows.Controls;
+    using System.Windows.Controls.Primitives;
+    using System.Windows.Data;
+
+    /// <summary>
+    /// MvxWpfPresenter.
+    /// </summary>
+    /// <seealso cref="MvvmCross.Platforms.Wpf.Presenters.MvxWpfViewPresenter" />
     public class MvxWpfPresenter : MvxWpfViewPresenter
     {
-        readonly ContentControl Root;
+        private readonly ContentControl _root;
 
-        public MvxWpfPresenter() : this(Application.Current?.MainWindow) { }
-        public MvxWpfPresenter(ContentControl root) : base(root) => Root = root;
         public static IMvxCommand CloseHolderCommand { get; } = new MvxCloseHolderCommand();
+
         public static IMvxCommand CloseViewCommand { get; } = new MvxCloseViewCommand();
 
         /// <summary>
-        /// First rgister <see cref="MvxWpfPresenterAttribute"/> in addition to the original MvvmCross attributes.
+        /// Initializes a new instance of the <see cref="MvxWpfPresenter" /> class.
+        /// </summary>
+        public MvxWpfPresenter()
+            : this(Application.Current?.MainWindow)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MvxWpfPresenter" /> class.
+        /// </summary>
+        /// <param name="root">The root.</param>
+        public MvxWpfPresenter(ContentControl root)
+            : base(root) => this._root = root;
+
+        /// <summary>
+        /// Closes the specified to close.
+        /// </summary>
+        /// <param name="toClose">To close.</param>
+        /// <returns></returns>
+        public override Task<bool> Close(IMvxViewModel toClose)
+        {
+            if (CloseViewModel(toClose).Result) return Task.FromResult(false);
+            return base.Close(toClose);
+        }
+
+        /// <summary>
+        /// First rgister <see cref="MvxWpfPresenterAttribute" /> in addition to the
+        /// original MvvmCross attributes.
         /// </summary>
         public override void RegisterAttributeTypes()
         {
-            AttributeTypesToActionsDictionary.Add(
+            this.AttributeTypesToActionsDictionary.Add(
                 typeof(MvxWpfPresenterAttribute),
                 new MvxPresentationAttributeAction()
                 {
@@ -39,53 +69,29 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
                 });
             base.RegisterAttributeTypes();
         }
+
         /// <summary>
-        /// May be not nessacery
+        /// Gets the view model.
         /// </summary>
-        /// <param name="viewModelType"></param>
-        /// <param name="viewType"></param>
+        /// <param name="view">The view.</param>
         /// <returns></returns>
-        public override MvxBasePresentationAttribute CreatePresentationAttribute(Type viewModelType, Type viewType)
+        static internal IMvxViewModel GetViewModel(FrameworkElement view)
         {
-            var attr = viewType.GetCustomAttributes(typeof(MvxWpfPresenterAttribute), true);
-            if ((attr?.Length).GetValueOrDefault() > 0) return attr.FirstOrDefault() as MvxWpfPresenterAttribute;
-            return base.CreatePresentationAttribute(viewModelType, viewType);
+            if (view is IMvxWpfView mvx)
+            {
+                return mvx.ViewModel;
+            }
+
+            return view.DataContext as IMvxViewModel;
         }
 
-        private void ShowView(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request)
-        {
-            //Try to find items container.
-            ItemsControl container = string.IsNullOrWhiteSpace(attribute?.ContainerId) ?
-                MvxContainer.GetFirstContainer() : MvxContainer.GetContainerById(attribute?.ContainerId);
-            if (container == null)// If no container found the switch to content view.
-            {
-                ShowViewWithNoContainer(request, new MvxContentPresentationAttribute());
-                return;
-            }
-            switch (attribute.ViewPosition)
-            {
-                case mvxViewPosition.Active:
-                    ShowView_Active(attribute, request, container);
-                    break;
-                case mvxViewPosition.NewOrExsist:
-                    ShowView_NewOrExist(attribute, request, container);
-                    break;
-                case mvxViewPosition.NewOrHistoryExsist:
-                    ShowView_NewOrHistoryExist(attribute, request, container);
-                    break;
-                case mvxViewPosition.New:
-                    ShowView_New(attribute, request, container);
-                    break;
-                default:
-                    break;
-            }
-        }
-        protected virtual void ShowViewWithNoContainer(MvxViewModelRequest request, MvxContentPresentationAttribute attribute)
-        {
-            var view = WpfViewLoader.CreateView(request);
-            base.ShowContentView(view, new MvxContentPresentationAttribute(), request);
-        }
-        protected virtual void ShowView_Active(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
+        /// <summary>
+        /// Shows the view active.
+        /// </summary>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="request">The request.</param>
+        /// <param name="container">The container.</param>
+        protected virtual void ShowViewActive(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
         {
             var selector = container as Selector;
             int i = (selector == null) ? selector.Items.Count - 1 : selector.SelectedIndex;
@@ -96,13 +102,37 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
                 GetHistory(holder).Push(view);
                 SetViewInHolder(holder, view);
             }
-            else ShowView_New(attribute, request, container);
+            else ShowViewNew(attribute, request, container);
         }
-        protected virtual void ShowView_NewOrExist(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
+
+        /// <summary>
+        /// Shows the view new.
+        /// </summary>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="request">The request.</param>
+        /// <param name="container">The container.</param>
+        protected virtual void ShowViewNew(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
+        {
+            var view = WpfViewLoader.CreateView(request);
+            var holder = CreateViewHolder(container);
+            SetViewInHolder(holder, view);
+            GetHistory(holder).Push(view);
+            var i = container.Items.Add(holder);
+            if (container is Selector selector) selector.SelectedIndex = i;
+        }
+
+        /// <summary>
+        /// Shows the view new or exist.
+        /// </summary>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="request">The request.</param>
+        /// <param name="container">The container.</param>
+        protected virtual void ShowViewNewOrExist(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
         {
             ContentControl holder = null;
             var viewModel = (request as MvxViewModelInstanceRequest)?.ViewModelInstance;
             var viewId = attribute?.ViewId(viewModel);
+
             foreach (var item in container.Items.OfType<ContentControl>())
             {
                 var view = item.Content as FrameworkElement;
@@ -112,6 +142,7 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
                     break;
                 }
             }
+
             if (holder != null)
             {
                 if (container is Selector selector) selector.SelectedItem = holder;
@@ -119,14 +150,22 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
             }
             else
             {
-                ShowView_New(attribute, request, container);
+                ShowViewNew(attribute, request, container);
             }
         }
-        protected virtual void ShowView_NewOrHistoryExist(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
+
+        /// <summary>
+        /// Shows the view new or history exist.
+        /// </summary>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="request">The request.</param>
+        /// <param name="container">The container.</param>
+        protected virtual void ShowViewNewOrHistoryExist(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
         {
             ContentControl holder = null;
             var viewModel = (request as MvxViewModelInstanceRequest)?.ViewModelInstance;
             var viewId = attribute?.ViewId(viewModel);
+
             foreach (var item in container.Items.OfType<ContentControl>())
             {
                 var history = MvxContainer.GetHolderHistory(item);
@@ -139,6 +178,7 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
                     }
                 }
             }
+
             if (holder != null)
             {
                 if (container is Selector selector) selector.SelectedItem = holder;
@@ -146,36 +186,36 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
             }
             else
             {
-                ShowView_New(attribute, request, container);
+                ShowViewNew(attribute, request, container);
             }
-        }
-        protected virtual void ShowView_New(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request, ItemsControl container)
-        {
-            var view = WpfViewLoader.CreateView(request);
-            var holder = CreateViewHolder(container);
-            SetViewInHolder(holder, view);
-            GetHistory(holder).Push(view);
-            var i = container.Items.Add(holder);
-            if (container is Selector selector) selector.SelectedIndex = i;
         }
 
         /// <summary>
-        /// This will close the view containing a view model and return to previous view, 
-        /// or close the holder if it is the only view in the navigation stack.
+        /// Shows the view with no container.
         /// </summary>
-        /// <param name="viewModel">The view model to be closed.</param>
-        /// <returns>True if a view is found and closed, otherwise it will return false.</returns>
-        private bool CloseViewModel(IMvxViewModel viewModel)
+        /// <param name="request">The request.</param>
+        /// <param name="attribute">The attribute.</param>
+        protected virtual void ShowViewWithNoContainer(MvxViewModelRequest request, MvxContentPresentationAttribute attribute)
         {
-            bool result = false;
-            var view = GetView(viewModel);
-            if (view != null) result = CloseView(view);
-            return result;
+            var view = WpfViewLoader.CreateView(request);
+            base.ShowContentView(view, new MvxContentPresentationAttribute(), request);
         }
-        private bool CloseView(FrameworkElement view)
+
+        /// <summary>
+        /// Closes the view.
+        /// </summary>
+        /// <param name="view">The view.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">view</exception>
+        /// <exception cref="InvalidOperationException">
+        /// You can only close last opened view.
+        /// </exception>
+        private static bool CloseView(FrameworkElement view)
         {
             if (view == null) throw new ArgumentNullException(nameof(view));
+
             var holder = view.Parent as ContentControl;
+
             if (holder != null)
             {
                 var container = holder.Parent as ItemsControl;
@@ -200,19 +240,36 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
                     }
                 }
             }
+
             return false;
         }
 
-        public override void Close(IMvxViewModel toClose)
+        /// <summary>
+        /// This will close the view containing a view model and return to previous view,
+        /// or close the holder if it is the only view in the navigation stack.
+        /// </summary>
+        /// <param name="viewModel">The view model to be closed.</param>
+        /// <returns>
+        /// True if a view is found and closed, otherwise it will return false.
+        /// </returns>
+        private static Task<bool> CloseViewModel(IMvxViewModel viewModel)
         {
-            if (CloseViewModel(toClose)) return;
-            base.Close(toClose);
+            bool result = false;
+            var view = GetView(viewModel);
+            if (view != null) result = CloseView(view);
+            return Task.FromResult(result);
         }
 
-        ContentControl CreateViewHolder(ItemsControl container)
+        /// <summary>
+        /// Creates the view holder.
+        /// </summary>
+        /// <param name="container">The container.</param>
+        /// <returns></returns>
+        private static ContentControl CreateViewHolder(ItemsControl container)
         {
             var t = MvxContainer.GetHolderType(container);
             ContentControl holder;
+
             if (container is TabControl tabControl)
             {
                 TabItem tabHolder = (t == null) ? new TabItem() : Activator.CreateInstance(t) as TabItem;
@@ -224,29 +281,34 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
                 if (t == null) holder = new ContentControl();
                 else holder = Activator.CreateInstance(t) as ContentControl;
             }
+
             return holder;
         }
-        void SetViewInHolder(ContentControl holder, FrameworkElement view)
-        {
-            holder.Content = view;
-            if (holder is HeaderedContentControl headered)
-            {
-                var binding = new System.Windows.Data.Binding() { Source = view, Mode = BindingMode.TwoWay };
-                binding.Path = new PropertyPath("(0)", MvxContainer.HeaderProperty);
-                BindingOperations.SetBinding(headered, HeaderedContentControl.HeaderProperty, binding);
-            }
-        }
-        Stack<FrameworkElement> GetHistory(ContentControl holder)
+
+        /// <summary>
+        /// Gets the history.
+        /// </summary>
+        /// <param name="holder">The holder.</param>
+        /// <returns></returns>
+        private static Stack<FrameworkElement> GetHistory(ContentControl holder)
         {
             var history = MvxContainer.GetHolderHistory(holder);
+
             if (history == null)
             {
                 history = new Stack<FrameworkElement>();
                 MvxContainer.SetHolderHistory(holder, history);
             }
+
             return history;
         }
-        FrameworkElement GetView(IMvxViewModel viewModel)
+
+        /// <summary>
+        /// Gets the view.
+        /// </summary>
+        /// <param name="viewModel">The view model.</param>
+        /// <returns></returns>
+        private static FrameworkElement GetView(IMvxViewModel viewModel)
         {
             foreach (var container in MvxContainer.GetContainers())
             {
@@ -257,27 +319,69 @@ namespace MvvmCross.Platforms.Wpf.ItemsPresenter
                     if (Equals(control.DataContext, viewModel)) return holder;
                 }
             }
+
             return null;
         }
-        FrameworkElement GetViewInHistory(IMvxViewModel viewModel)
+
+        /// <summary>
+        /// Sets the view in holder.
+        /// </summary>
+        /// <param name="holder">The holder.</param>
+        /// <param name="view">The view.</param>
+        private static void SetViewInHolder(ContentControl holder, FrameworkElement view)
         {
-            foreach (var container in MvxContainer.GetContainers())
+            holder.Content = view;
+
+            if (holder is HeaderedContentControl headered)
             {
-                foreach (var holder in container.Items.OfType<ContentControl>())
-                {
-                    foreach (var control in GetHistory(holder))
-                    {
-                        if (control is IMvxWpfView view && Equals(viewModel, view.ViewModel)) return control;
-                        if (Equals(control.DataContext, viewModel)) return holder;
-                    }
-                }
+                var binding = new System.Windows.Data.Binding() { Source = view, Mode = BindingMode.TwoWay };
+                binding.Path = new PropertyPath("(0)", MvxContainer.HeaderProperty);
+                BindingOperations.SetBinding(headered, HeaderedContentControl.HeaderProperty, binding);
             }
-            return null;
         }
-        static internal IMvxViewModel GetViewModel(FrameworkElement view)
+
+        /// <summary>
+        /// Shows the view.
+        /// </summary>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="request">The request.</param>
+        /// <returns></returns>
+        private Task<bool> ShowView(MvxWpfPresenterAttribute attribute, MvxViewModelRequest request)
         {
-            if (view is IMvxWpfView mvx) return mvx.ViewModel;
-            return view.DataContext as IMvxViewModel;
+            // Try to find items container.
+            ItemsControl container = string.IsNullOrWhiteSpace(attribute?.ContainerId) ?
+                MvxContainer.GetFirstContainer() : MvxContainer.GetContainerById(attribute?.ContainerId);
+
+            // If no container found the switch to content view.
+            if (container == null)
+            {
+                ShowViewWithNoContainer(request, new MvxContentPresentationAttribute());
+                return Task.FromResult(true);
+            }
+
+            switch (attribute.ViewPosition)
+            {
+                case mvxViewPosition.Active:
+                    ShowViewActive(attribute, request, container);
+                    break;
+
+                case mvxViewPosition.NewOrExsist:
+                    ShowViewNewOrExist(attribute, request, container);
+                    break;
+
+                case mvxViewPosition.NewOrHistoryExsist:
+                    ShowViewNewOrHistoryExist(attribute, request, container);
+                    break;
+
+                case mvxViewPosition.New:
+                    ShowViewNew(attribute, request, container);
+                    break;
+
+                default:
+                    break;
+            }
+
+            return Task.FromResult(true);
         }
     }
 }
