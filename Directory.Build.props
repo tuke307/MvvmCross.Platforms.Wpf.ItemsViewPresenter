@@ -6,7 +6,7 @@
     <Owners>eiadxp</Owners>
     <Description>A simple library for MvvmCross that will enable the using of ItemsControls to host your views.... This include the Tabbed GUI for example.</Description>
     <PackageTags>cross-platform, wpf, mvvm, mvvmcross, crossplatform, tabbed, tabbed-view</PackageTags>
-    <NeutralLanguage>en-EN</NeutralLanguage>
+    <NeutralLanguage>en</NeutralLanguage>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
