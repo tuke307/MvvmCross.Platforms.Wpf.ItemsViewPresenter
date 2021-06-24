@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net472;net5.0-windows</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <RootNamespace>Mvx.Wpf.ItemsPresenter</RootNamespace>
+    <AssemblyName>Mvx.Wpf.ItemsPresenter</AssemblyName>
+    <Product>Mvx.Wpf.ItemsPresenter</Product>
+    <PackageId>Mvx.Wpf.ItemsPresenter</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MvvmCross" Version="8.0.1" />
+    <PackageReference Include="MvvmCross.Platforms.Wpf" Version="8.0.1" />
+  </ItemGroup>
+</Project>

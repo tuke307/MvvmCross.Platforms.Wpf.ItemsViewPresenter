@@ -8,13 +8,17 @@
     <PackageTags>cross-platform, wpf, mvvm, mvvmcross, crossplatform, tabbed, tabbed-view</PackageTags>
     <NeutralLanguage>en</NeutralLanguage>
     <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/tuke307/MvvmCross.Platforms.Wpf.ItemsViewPresenter</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/tuke307/MvvmCross.Platforms.Wpf.ItemsViewPresenter/releases</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/tuke307/MvvmCross.Platforms.Wpf.ItemsViewPresenter</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
   <!-- version configuration -->
   <PropertyGroup>
-    <Version>2.0.0.0</Version>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.1.0</Version>
+    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+    <FileVersion>2.0.1.0</FileVersion>
   </PropertyGroup>
 
   <!-- execution configuration -->
