@@ -46,11 +46,11 @@ public class MySetup : Core.MvxWpfSetup<App>
 ```
 2. Our presenter is based on MvvmCross presenter `MvxWpfViewPresenter` which means that you can use the content and window views of the MvvmCross normally. When you need to use ItemsControl presentation, you should register an ItemsControl as a container using the attached property `MvxContainer.Id`. You can also use the attached property `MvxContainer.HolderType` to set the holder type of your view. In the following code we registered a TabControl with Id "docs" and we kept the default holder type (`TabItem`), we also registered a ListBox as a container with id "users" and set the holder type to `Expander`, so all the views inside this container will be placed in an `Expander` control:
 ```XAML
-<view:MvxWpfView x:Class="MvvmCross.Platforms.Wpf.ItemsPresenter.Demo.Views.HomeView"
+<view:MvxWpfView x:Class="Mvx.Wpf.ItemsPresenter.Demo.Views.HomeView"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:view="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
-                 xmlns:mvx="clr-namespace:MvvmCross.Platforms.Wpf.ItemsPresenter;assembly=MvvmCross.Platforms.Wpf.ItemsPresenter">
+                 xmlns:mvx="clr-namespace:Mvx.Wpf.ItemsPresenter;assembly=Mvx.Wpf.ItemsPresenter">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -64,11 +64,11 @@ public class MySetup : Core.MvxWpfSetup<App>
 3. Create your views as you normally do with MvvmCross.
 4. You can use the attached property `MvxContainer.Header` in your view to set the holder header if your it supports headers (based on `HeaderedContentControl` like `TabItem` or `Expander`):
 ```XAML
-<view:MvxWpfView x:Name="mvxWpfView" x:Class="MvvmCross.Platforms.Wpf.ItemsPresenter.Demo.Views.FirstView"
+<view:MvxWpfView x:Name="mvxWpfView" x:Class="Mvx.Wpf.ItemsPresenter.Demo.Views.FirstView"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:view="clr-namespace:MvvmCross.Platforms.Wpf.Views;assembly=MvvmCross.Platforms.Wpf"
-                 xmlns:mvx="clr-namespace:MvvmCross.Platforms.Wpf.ItemsPresenter;assembly=MvvmCross.Platforms.Wpf.ItemsPresenter"
+                 xmlns:mvx="clr-namespace:Mvx.Wpf.ItemsPresenter;assembly=Mvx.Wpf.ItemsPresenter"
                  mvx:MvxContainer.Header="First View">
 
 </view:MvxWpfView>
@@ -77,7 +77,7 @@ Please note that the header of your holder is Binded to the attached property `M
 
 5. In the code behind file use the attribute `MvxWpfPresenter` and provide at least the container id. you can also set other parameters like ViewPosition and ViewId:
 ```C#
-[MvvmCross.Platforms.Wpf.ItemsPresenter.MvxWpfPresenter("docs")]
+[Mvx.Wpf.ItemsPresenter.MvxWpfPresenter("docs")]
 public partial class FirstView
 {
     public FirstView()
