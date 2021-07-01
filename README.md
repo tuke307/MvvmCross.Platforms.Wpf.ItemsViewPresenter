@@ -1,18 +1,26 @@
 [![NuGet](https://img.shields.io/nuget/v/Mvx.Wpf.ItemsPresenter.svg)](https://www.nuget.org/packages/Mvx.Wpf.ItemsPresenter/)
 [![NuGet Pre Release](https://img.shields.io/nuget/vpre/Mvx.Wpf.ItemsPresenter.svg)](https://www.nuget.org/packages/Mvx.Wpf.ItemsPresenter/)
 
+since mvvmcross 8.x you have to use the `[MvxContentPresentation]` in the first views.
+look here [MvvmCross-Issue-4210](https://github.com/MvvmCross/MvvmCross/issues/4210)
+
 # MvvmCross.Platforms.Wpf.ItemsViewPresenter
 A simple library for MvvmCross that will enable the using of ItemsControls to host your views.... This include the Tabbed GUI for example.
 
 # Terms:
+
 ## Container:
 It is the an ItemsControl that will host your views. You can have multiple containers, but each one should be registered in a unique name using attached property `MvxContainer.Id` in your container. If you registered more than one container with the same Id, the last one will be used. You should specify your container id of the views in the attribute `MvxWpfPresenterAttribute` in the code behind file.
+
 ## Holder:
 It is a ContentControl that will host your view inside the container. If your container is TabControl, the holder will be a TabItem, otherwise it will be a ContentControl. You can change this by using the attached property `mvx:MvxContainer.HolderType` on the container, you can set this property to the your holder type.
+
 ## Holder Header:
 You can set your holder header by using the attached property `MvxContainer.Header` in the root of your view. If your holder supports headers (`HeaderedContentControl`) the presenter will bind the attached property `MvxContainer.Header` to the holder header.
+
 ## View ID:
 Each view will have a string Id to enable the presenter from searching the views. The Id is calculated in the `MvxWpfPresenterAttribute.ViewId` function which will take a ViewModel as parameter and returns a string Id. the default implementation of this method is to return the view model `ToString()` function. This means that if did not override this method in your view model, the presenter will return any view that has the same view model type as your view model. you can change this be either overrides the `ToString()` methods in your view model, or by providing a `ViewId` function in your view attribute `MvxWpfPresenterAttribute`.
+
 ## View position:
 You can set the way your view will be displayed in the attribute `MvxWpfPresenterAttribute` in the code behind file. You can choose one of the following values:
  1. **New**:
@@ -23,27 +31,44 @@ You can set the way your view will be displayed in the attribute `MvxWpfPresente
  The presenter will search for any matching visible view, and if it found one it will bring its holder to the top, otherwise it will display the view in a new holder. The view searching is done using ViewId function of the `MvxWpfPresenterAttribute`.
  4. **NewOrHistoryExsist**:
  The presenter will search for the matching view in every holder and in the navigation stack of every holder, if it found a matching view, its holder will be displayed, otherwise it will display the view in a new holder.
+
 # Usage:
 1. The easiest way to start is to use our setup class by registering it in the app class of your UI project:
+
 ```C#
 public partial class App : MvxApplication
 {
     protected override void RegisterSetup()
     {
-        this.RegisterSetupType<MvxWpfSetup<Core.App>>();
+        this.RegisterSetupType<Mvx.Wpf.ItemsPresenter.MvxWpfSetup<Core.App>>();
     }
 }
 ```
-Or you can create your own setup class that returns `MvxWpfPresenter` for the `CreateViewPresenter` method, and register it as before:
+
+If you want to override the MvxWpfSetup methods for using the log for example, 
+you can create your own setup class that returns the custom `MvxWpfPresenter` 
+for the `CreateViewPresenter` method, and register it as before:
+
 ```C#
-public class MySetup : Core.MvxWpfSetup<App>
+public class MySetup : MvvmCross.Platforms.Wpf.Core.MvxWpfSetup<Core.App>
 {
+    protected override ILoggerFactory CreateLogFactory() 
+    { 
+        ...
+    }
+
+    protected override ILoggerProvider CreateLogProvider()
+    {
+       ...
+    }
+
     protected override IMvxWpfViewPresenter CreateViewPresenter(ContentControl root)
     {
-        return new MvxWpfPresenter(root);
+        return new Mvx.Wpf.ItemsPresenter.MvxWpfPresenter(root);
     }
 }
 ```
+
 2. Our presenter is based on MvvmCross presenter `MvxWpfViewPresenter` which means that you can use the content and window views of the MvvmCross normally. When you need to use ItemsControl presentation, you should register an ItemsControl as a container using the attached property `MvxContainer.Id`. You can also use the attached property `MvxContainer.HolderType` to set the holder type of your view. In the following code we registered a TabControl with Id "docs" and we kept the default holder type (`TabItem`), we also registered a ListBox as a container with id "users" and set the holder type to `Expander`, so all the views inside this container will be placed in an `Expander` control:
 ```XAML
 <view:MvxWpfView x:Class="MvvmCross.Platforms.Wpf.ItemsPresenter.Demo.Views.HomeView"

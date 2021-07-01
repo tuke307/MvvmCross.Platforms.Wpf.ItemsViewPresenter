@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MvvmCross.Platforms.Wpf.Presenters.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,7 @@ namespace Mvx.Wpf.ItemsPresenter.Demo.Views
     /// <summary>
     /// Interaction logic for HomeView.xaml
     /// </summary>
+    [MvxContentPresentation]
     public partial class HomeView
     {
         public HomeView()

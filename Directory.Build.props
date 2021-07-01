@@ -26,14 +26,9 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
-  <!-- style configuration -->
-  <ItemGroup>
-    <!-- Ruleset configuration -->
-    <!--<CodeAnalysisRuleSet>$(SolutionDir)\Code Rules.ruleset</CodeAnalysisRuleSet>-->
-  </ItemGroup>
-
   <!-- release configuration -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <!--<SymbolPackageFormat>snupkg</SymbolPackageFormat>-->
     <IncludeSymbols>true</IncludeSymbols>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -43,15 +38,15 @@
     <DebugSymbols>true</DebugSymbols>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <GeneratePackageOnBuild Condition=" '$(IsTestProject)' != 'true'">true</GeneratePackageOnBuild>
   </PropertyGroup>
 
-  <!-- debug configuration -->
+  <!-- Debug configuration -->
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DefineConstants>DEBUG</DefineConstants>
-    <Optimize>true</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+
+    <!-- Ruleset configuration -->
+    <CodeAnalysisRuleSet>$(SolutionDir)/Code Rules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <!-- nuget configuration -->
